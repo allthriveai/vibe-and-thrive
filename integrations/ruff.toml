@@ -1,0 +1,125 @@
+# Ruff Configuration for Vibe Coding
+#
+# Catches common AI-generated code issues in Python.
+# Copy to your project root as ruff.toml or pyproject.toml [tool.ruff] section.
+#
+# Install: pip install ruff
+
+# Target Python version
+target-version = "py311"
+
+# Line length (match Black)
+line-length = 100
+
+# Exclude common directories
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "migrations",
+    "node_modules",
+    "dist",
+    "build",
+    ".eggs",
+]
+
+[lint]
+# Enable these rule sets
+select = [
+    # ===========================================
+    # Core rules - catch common AI mistakes
+    # ===========================================
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes (unused imports, variables)
+    "I",      # isort (import sorting)
+    "B",      # flake8-bugbear (common bugs)
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade (modern Python syntax)
+    "SIM",    # flake8-simplify (simplify code)
+
+    # ===========================================
+    # Security - AI can introduce vulnerabilities
+    # ===========================================
+    "S",      # flake8-bandit (security issues)
+
+    # ===========================================
+    # Code quality
+    # ===========================================
+    "N",      # pep8-naming
+    "RUF",    # Ruff-specific rules
+    "PTH",    # flake8-use-pathlib
+    "ERA",    # eradicate (commented-out code)
+    "PL",     # Pylint
+    "PERF",   # Perflint (performance)
+
+    # ===========================================
+    # Type checking helpers
+    # ===========================================
+    "TCH",    # flake8-type-checking
+    "ANN",    # flake8-annotations
+]
+
+# Rules to ignore
+ignore = [
+    # Allow missing type annotations in some cases
+    "ANN101",  # Missing type annotation for self
+    "ANN102",  # Missing type annotation for cls
+    "ANN401",  # Dynamically typed expressions (Any)
+
+    # Allow assert in tests
+    "S101",    # Use of assert
+
+    # These can be too strict
+    "PLR0913", # Too many arguments
+    "PLR2004", # Magic value comparison
+    "PLR0911", # Too many return statements
+
+    # Let formatter handle these
+    "E501",    # Line too long (handled by formatter)
+]
+
+# Per-file ignores
+[lint.per-file-ignores]
+# Tests can have more relaxed rules
+"tests/**/*.py" = [
+    "S101",    # assert is fine in tests
+    "ANN",     # Don't require annotations in tests
+    "PLR2004", # Magic values OK in tests
+]
+# Migrations are auto-generated
+"**/migrations/*.py" = ["ALL"]
+# Config files
+"conftest.py" = ["ANN"]
+
+[lint.isort]
+# isort configuration
+known-first-party = ["app", "core", "services"]
+force-single-line = false
+combine-as-imports = true
+
+[lint.flake8-bugbear]
+# Extend immutable calls (AI often mutates defaults)
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
+
+[lint.pylint]
+# Limit function complexity
+max-args = 7
+max-branches = 12
+max-returns = 6
+max-statements = 50
+
+[lint.mccabe]
+# Cyclomatic complexity threshold
+max-complexity = 10
+
+[format]
+# Use double quotes (match Black)
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Unix line endings
+line-ending = "lf"

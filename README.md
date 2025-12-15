@@ -9,7 +9,8 @@ When you're vibe coding with Claude, Cursor, Copilot, or other AI assistants, th
 | Tool | Purpose |
 |------|---------|
 | **16 Pre-commit Hooks** | Automatically check code at commit time |
-| **9 Claude Code Skills** | On-demand code tools |
+| **9 Claude Code Skills** | On-demand code quality tools |
+| **ESLint + Ruff Configs** | Linter configs tuned for AI-generated code |
 | **Educational Docs** | Learn to avoid common AI mistakes |
 | **Stack Examples** | CLAUDE.md templates for React, Django, Node |
 | **Integrations** | Cursor rules, GitHub Actions, VS Code settings |
@@ -391,6 +392,8 @@ See [CHEATSHEET.md](CHEATSHEET.md) for a one-page reference of:
 
 | File | Purpose |
 |------|---------|
+| [eslint.config.js](integrations/eslint.config.js) | ESLint config for JS/TS (catches AI mistakes) |
+| [ruff.toml](integrations/ruff.toml) | Ruff config for Python (linting + formatting) |
 | [cursorrules.template](integrations/cursorrules.template) | Rules for Cursor AI |
 | [vibe-check.yml](integrations/vibe-check.yml) | GitHub Action for PRs |
 | [vscode-settings.json](integrations/vscode-settings.json) | Recommended VS Code settings |
