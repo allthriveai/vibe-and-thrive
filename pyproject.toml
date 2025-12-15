@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vibe-and-thrive"
-version = "0.2.0"
+version = "0.3.0"
 description = "Tools and guardrails that catch common AI coding mistakes before they hit your codebase"
 readme = "README.md"
 license = "MIT"

@@ -77,7 +77,7 @@ Add to your `.pre-commit-config.yaml`:
 ```yaml
 repos:
   - repo: https://github.com/allthriveai/vibe-and-thrive
-    rev: v0.2.0
+    rev: v0.3.0
     hooks:
       - id: check-secrets           # BLOCKS commits
       - id: check-hardcoded-urls    # BLOCKS commits

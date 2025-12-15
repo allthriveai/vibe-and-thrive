@@ -110,6 +110,8 @@ def main(filenames: list[str]) -> int:
 
 def cli() -> int:
     """CLI entry point."""
+    from .banner import print_banner
+    print_banner(mini=True)
     return main(sys.argv[1:])
 
 
