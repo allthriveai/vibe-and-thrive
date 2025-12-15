@@ -1,8 +1,24 @@
 # Test-Driven Development with AI
 
-How to use TDD when vibe coding with AI assistants.
+## What is TDD in the AI Era?
 
-## The Problem
+Test-Driven Development (TDD) is a practice where you write tests before writing code. The classic cycle is: **Red → Green → Refactor**.
+
+1. **Red**: Write a failing test
+2. **Green**: Write minimal code to pass the test
+3. **Refactor**: Clean up while keeping tests green
+
+With AI coding agents, TDD becomes even more powerful. Instead of writing both the test and implementation yourself, you:
+
+1. **Describe** what you want in plain English
+2. **AI writes** a failing test that captures your intent
+3. **You verify** the test fails for the right reason
+4. **AI implements** code to make it pass
+5. **You verify** it works
+
+This keeps you in control while letting AI do the heavy lifting. The test becomes a **contract**—AI can't just generate code that "looks right" but doesn't work.
+
+## Why TDD Matters More with AI
 
 AI coding agents are great at generating code fast, but they often:
 

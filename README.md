@@ -14,6 +14,13 @@ uv pip install vibe-and-thrive
 pip install vibe-and-thrive
 ```
 
+Then run the setup script to install Claude Code skills, pre-commit hooks, and templates:
+
+```bash
+git clone https://github.com/allthriveai/vibe-and-thrive.git
+./vibe-and-thrive/setup-vibe-and-thrive.sh ~/path/to/your-project
+```
+
 ## Usage
 
 ### Claude Code (recommended)
@@ -41,10 +48,25 @@ Runs automatically on every commit. See [Pre-commit Hooks](#pre-commit-hooks) be
 
 ## What's Included
 
+### Claude Code Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `/vibe-check` | Full code quality audit |
+| `/tdd-feature` | Build features test-first with AI |
+| `/e2e-scaffold` | Generate E2E test structure |
+| `/review` | Code review for issues |
+| `/explain` | Explain code line by line |
+| `/refactor` | Guided refactoring |
+| `/add-tests` | Add tests to existing code |
+| `/fix-types` | Fix TypeScript without `any` |
+| `/security-check` | Check for vulnerabilities |
+
+### Also Included
+
 | Tool | Purpose |
 |------|---------|
 | **16 Pre-commit Hooks** | Automatically check code at commit time |
-| **9 Claude Code Skills** | `/vibe-check`, `/tdd-feature`, `/review`, etc. |
 | **ESLint + Ruff Configs** | Linter configs tuned for AI-generated code |
 | **Stack Templates** | CLAUDE.md templates for React, Django, FastAPI, FastMCP, Node |
 
@@ -70,15 +92,6 @@ Then: `pre-commit install`
 
 See [docs/HOOKS.md](docs/HOOKS.md) for all 16 hooks.
 
-## Full Setup
-
-For the complete toolkit (Claude skills, CLAUDE.md template, MCP config):
-
-```bash
-git clone https://github.com/allthriveai/vibe-and-thrive.git
-./vibe-and-thrive/setup-vibe-and-thrive.sh ~/path/to/your-project
-```
-
 ## Documentation
 
 | Doc | Description |
@@ -97,6 +110,8 @@ These are **guardrails, not gatekeepers**:
 - Warn about most issues (awareness > blocking)
 - Block only security-critical problems
 - Support `# noqa:` suppression
+- Little and often make much
+- Sleep, code, test, code, sleep, repeat
 
 ## License
 
