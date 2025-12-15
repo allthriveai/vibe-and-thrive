@@ -1,0 +1,66 @@
+# Hook definitions for vibe-and-thrive
+# These hooks help catch common issues when coding with AI agents
+
+- id: check-dry-violations-python
+  name: Check DRY Violations (Python)
+  description: Detect duplicate code blocks, repeated strings, and similar functions in Python
+  entry: hooks/check_dry_violations.py
+  language: python
+  types: [python]
+  exclude: |
+    (?x)^(
+      .*/tests/.*|
+      .*_test\.py$|
+      .*test_.*\.py$|
+      .*/migrations/.*|
+      .*/conftest\.py$|
+      .*/fixtures/.*
+    )$
+
+- id: check-dry-violations-js
+  name: Check DRY Violations (JavaScript/TypeScript)
+  description: Detect duplicate code blocks, repeated strings, and className patterns in JS/TS
+  entry: hooks/check_dry_violations.js
+  language: node
+  types_or: [javascript, jsx, ts, tsx]
+  exclude: |
+    (?x)^(
+      .*/tests/.*|
+      .*\.test\.(ts|tsx|js|jsx)$|
+      .*\.spec\.(ts|tsx|js|jsx)$|
+      .*/node_modules/.*|
+      .*/fixtures/.*
+    )$
+
+- id: check-magic-numbers
+  name: Check Magic Numbers
+  description: Detect hardcoded numbers that should be named constants
+  entry: hooks/check_magic_numbers.py
+  language: python
+  types: [python]
+  exclude: |
+    (?x)^(
+      .*/tests/.*|
+      .*/migrations/.*|
+      .*/constants\.py$
+    )$
+
+- id: check-hardcoded-urls
+  name: Check Hardcoded URLs
+  description: Detect localhost/127.0.0.1 URLs that should use configuration
+  entry: hooks/check_hardcoded_urls.py
+  language: python
+  types_or: [python, javascript, jsx, ts, tsx]
+  exclude: |
+    (?x)^(
+      .*/tests/.*|
+      .*/fixtures/.*|
+      .*\.config\.(js|ts)$
+    )$
+
+- id: check-docker-platform
+  name: Check Docker Platform
+  description: Ensure Docker builds specify platform for ARM/x86 compatibility
+  entry: hooks/check_docker_platform.py
+  language: python
+  files: (Dockerfile\.prod|docker-compose.*\.ya?ml|\.sh)$
