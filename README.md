@@ -234,6 +234,28 @@ Run manually with verbose output:
 pre-commit run check-dry-violations-python --all-files --verbose
 ```
 
+## Claude Code Integration
+
+### `/vibe-check` Command
+
+Copy the `.claude/commands/` folder to your project to get the `/vibe-check` slash command:
+
+```bash
+cp -r path/to/vibe-and-thrive/.claude your-project/
+```
+
+Then run `/vibe-check` in Claude Code to get a comprehensive report of all issues in your codebase.
+
+### CLAUDE.md Template
+
+Copy `CLAUDE.md.template` to your project root as `CLAUDE.md`:
+
+```bash
+cp path/to/vibe-and-thrive/CLAUDE.md.template your-project/CLAUDE.md
+```
+
+This teaches Claude/Cursor your coding standards so it avoids these issues in the first place. The hooks catch what slips through.
+
 ## Philosophy
 
 These hooks are designed to be **warnings, not blockers** (mostly). They alert you to potential issues but generally allow commits to proceed. The goal is awareness, not gatekeeping.

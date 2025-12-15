@@ -1,0 +1,196 @@
+# Project Instructions for AI Coding Agents
+
+> Copy this file to your project root as `CLAUDE.md` and customize for your stack.
+
+## Code Quality Standards
+
+When writing code for this project, follow these guidelines to avoid common AI-generated code issues.
+
+### Don't Leave Debug Statements
+
+Remove all debug statements before committing:
+
+```python
+# Bad
+print(f"DEBUG: user = {user}")
+breakpoint()
+
+# Good - use proper logging if needed
+logger.debug(f"Processing user {user.id}")
+```
+
+```typescript
+// Bad
+console.log('here', data);
+debugger;
+
+// Good - remove or use proper logging
+logger.debug('Processing data', { userId: data.id });
+```
+
+### Use Named Constants, Not Magic Numbers
+
+```python
+# Bad
+if retries > 5:
+    time.sleep(30)
+
+# Good
+MAX_RETRIES = 5
+RETRY_DELAY_SECONDS = 30
+
+if retries > MAX_RETRIES:
+    time.sleep(RETRY_DELAY_SECONDS)
+```
+
+### Use Environment Variables for URLs
+
+```python
+# Bad
+API_URL = "http://localhost:8000/api"
+
+# Good
+API_URL = os.getenv("API_URL", "http://localhost:8000/api")
+```
+
+```typescript
+// Bad
+const API_URL = 'http://localhost:3000/api';
+
+// Good
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+```
+
+### Use camelCase in TypeScript Interfaces
+
+If your API client transforms responses from snake_case to camelCase:
+
+```typescript
+// Bad - copied from API response
+interface User {
+  first_name: string;
+  last_name: string;
+  created_at: string;
+}
+
+// Good - matches transformed response
+interface User {
+  firstName: string;
+  lastName: string;
+  createdAt: string;
+}
+```
+
+### Handle Errors Properly
+
+Never silently swallow errors:
+
+```python
+# Bad
+try:
+    do_something()
+except Exception:
+    pass
+
+# Good
+try:
+    do_something()
+except SpecificException as e:
+    logger.error(f"Failed to do something: {e}")
+    raise
+```
+
+```typescript
+// Bad
+try { doSomething(); } catch (e) {}
+
+// Good
+try {
+  doSomething();
+} catch (e) {
+  console.error('Failed to do something:', e);
+  throw e;
+}
+```
+
+### Complete Your TODOs
+
+Don't leave placeholder comments:
+
+```python
+# Bad
+def process_payment(amount):
+    # TODO: implement this
+    pass
+
+# Good - implement it or raise NotImplementedError with context
+def process_payment(amount):
+    raise NotImplementedError("Payment processing requires Stripe integration - see PAYMENT.md")
+```
+
+### Never Hardcode Secrets
+
+```python
+# Bad - will be caught by pre-commit hook
+API_KEY = "sk-1234567890abcdef..."
+
+# Good
+API_KEY = os.getenv("API_KEY")
+if not API_KEY:
+    raise ValueError("API_KEY environment variable is required")
+```
+
+### Avoid Code Duplication
+
+Extract repeated code into functions:
+
+```python
+# Bad - same validation in multiple places
+def create_user(email):
+    if not email or '@' not in email:
+        raise ValueError("Invalid email")
+    # ...
+
+def update_user(email):
+    if not email or '@' not in email:
+        raise ValueError("Invalid email")
+    # ...
+
+# Good - extract to a function
+def validate_email(email: str) -> None:
+    if not email or '@' not in email:
+        raise ValueError("Invalid email")
+
+def create_user(email):
+    validate_email(email)
+    # ...
+```
+
+## Pre-commit Hooks
+
+This project uses [vibe-and-thrive](https://github.com/allthriveai/vibe-and-thrive) pre-commit hooks that will catch:
+
+- Debug statements (`console.log`, `print()`)
+- TODO/FIXME comments
+- Empty catch blocks
+- Hardcoded URLs and secrets
+- snake_case in TypeScript
+- Magic numbers
+- Code duplication
+
+Run `/vibe-check` to see issues before committing.
+
+## Project-Specific Instructions
+
+<!-- Add your project-specific coding standards below -->
+
+### Tech Stack
+- Backend: [Python/Django/FastAPI/Node/etc.]
+- Frontend: [React/Vue/etc.]
+- Database: [PostgreSQL/etc.]
+
+### Architecture Notes
+<!-- Add notes about your project structure -->
+
+### Common Patterns
+<!-- Add examples of patterns specific to your codebase -->
