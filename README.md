@@ -2,7 +2,7 @@
 
 **Tools and guardrails that catch common AI coding mistakes before they hit your codebase.**
 
-When you're vibe coding with Claude, Cursor, Copilot, or other AI assistants, these tools catch patterns that lead to technical debt—automatically.
+Whether you're using AI coding agents or building your own agents, MCPs, or applications—these tools catch patterns that lead to technical debt automatically.
 
 ## Install
 
