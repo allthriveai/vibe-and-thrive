@@ -79,3 +79,45 @@
       .*\.d\.ts$|
       .*/node_modules/.*
     )$
+
+- id: check-debug-statements
+  name: Check Debug Statements
+  description: Warn about console.log, print(), debugger statements left in code
+  entry: hooks/check_debug_statements.py
+  language: python
+  types_or: [python, javascript, jsx, ts, tsx]
+  exclude: |
+    (?x)^(
+      .*/tests/.*|
+      .*\.test\.(ts|tsx|js|jsx|py)$|
+      .*\.spec\.(ts|tsx|js|jsx)$
+    )$
+
+- id: check-todo-fixme
+  name: Check TODO/FIXME
+  description: Warn about TODO, FIXME, XXX, HACK comments that should be addressed
+  entry: hooks/check_todo_fixme.py
+  language: python
+  types_or: [python, javascript, jsx, ts, tsx]
+
+- id: check-empty-catch
+  name: Check Empty Catch Blocks
+  description: Warn about empty catch/except blocks that silently swallow errors
+  entry: hooks/check_empty_catch.py
+  language: python
+  types_or: [python, javascript, jsx, ts, tsx]
+
+- id: check-secrets
+  name: Check for Secrets
+  description: Block commits containing hardcoded API keys, passwords, and tokens
+  entry: hooks/check_secrets.py
+  language: python
+  types_or: [python, javascript, jsx, ts, tsx, json, yaml, toml]
+  exclude: |
+    (?x)^(
+      .*\.env\.example$|
+      .*\.env\.sample$|
+      .*package-lock\.json$|
+      .*yarn\.lock$|
+      .*pnpm-lock\.yaml$
+    )$

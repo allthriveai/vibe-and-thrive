@@ -13,6 +13,10 @@ AI coding agents are incredibly productive, but they can introduce subtle issues
 - **Hardcoded URLs** - `localhost:3000` instead of environment variables
 - **Architecture mismatches** - Building ARM images when your server runs x86
 - **snake_case in TypeScript** - Copying API response shapes without converting to camelCase
+- **Debug statements** - `console.log` and `print()` left in production code
+- **TODO/FIXME comments** - Placeholders that never got implemented
+- **Empty catch blocks** - Silently swallowing errors
+- **Hardcoded secrets** - API keys and passwords committed to the repo
 
 These hooks act as guardrails, catching these patterns at commit time so you can fix them while the context is fresh.
 
@@ -43,6 +47,10 @@ repos:
       - id: check-hardcoded-urls
       - id: check-docker-platform
       - id: check-snake-case-ts
+      - id: check-debug-statements
+      - id: check-todo-fixme
+      - id: check-empty-catch
+      - id: check-secrets
 ```
 
 ### 3. Install the hooks
@@ -132,6 +140,77 @@ interface User {
 
 This hook catches a subtle but common bug: your axios/fetch interceptor transforms API responses to camelCase, but the TypeScript interface still uses snake_case, so `user.first_name` is always `undefined`.
 
+### `check-debug-statements`
+
+Warns about debug statements left in code:
+
+- `console.log()`, `console.debug()`, `console.info()` (JS/TS)
+- `print()` statements (Python)
+- `debugger` statements (JS/TS)
+- `breakpoint()`, `pdb.set_trace()` (Python)
+
+Ignores `console.error()`, `console.warn()`, and proper `logger.*` calls.
+
+Add `// noqa: debug` or `# noqa: debug` to suppress for intentional logging.
+
+### `check-todo-fixme`
+
+Warns about unfinished work markers:
+
+- `TODO`
+- `FIXME`
+- `XXX`
+- `HACK`
+- `BUG`
+
+AI agents love to write `// TODO: implement this` and move on. This reminds you to actually do it.
+
+### `check-empty-catch`
+
+Warns about empty catch blocks that silently swallow errors:
+
+```python
+# Bad - errors disappear silently
+try:
+    do_something()
+except Exception:
+    pass
+
+# Good - at least log it
+try:
+    do_something()
+except Exception as e:
+    logger.error(f"Failed: {e}")
+    raise
+```
+
+```javascript
+// Bad
+try { doSomething(); } catch (e) {}
+
+// Good
+try { doSomething(); } catch (e) { console.error(e); throw e; }
+```
+
+### `check-secrets`
+
+**BLOCKS commits** containing hardcoded secrets:
+
+- AWS access keys (`AKIA...`)
+- OpenAI/Stripe keys (`sk-...`)
+- GitHub tokens (`ghp_...`)
+- Database connection strings with passwords
+- Private keys
+- Generic API keys and passwords
+
+```python
+# Bad - will block commit
+API_KEY = "sk-1234567890abcdef..."
+
+# Good - use environment variables
+API_KEY = os.getenv("API_KEY")
+```
+
 ## Configuration
 
 ### Excluding Files
@@ -161,12 +240,16 @@ These hooks are designed to be **warnings, not blockers** (mostly). They alert y
 
 Hooks that block commits:
 - `check-hardcoded-urls` - These are almost always bugs in production
+- `check-secrets` - Security critical, never commit secrets
 
 Hooks that warn only:
 - `check-dry-violations-*` - Duplication is sometimes intentional
 - `check-magic-numbers` - Context matters
 - `check-docker-platform` - May be handled in CI/CD
 - `check-snake-case-ts` - Some APIs genuinely need snake_case
+- `check-debug-statements` - Sometimes you want logging
+- `check-todo-fixme` - TODOs in progress are fine
+- `check-empty-catch` - Sometimes intentional (rare)
 
 ## Contributing
 
