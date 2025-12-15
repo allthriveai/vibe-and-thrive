@@ -30,7 +30,7 @@ vibe-check-length src/          # Long functions
 | **16 Pre-commit Hooks** | Automatically check code at commit time |
 | **9 Claude Code Skills** | `/vibe-check`, `/tdd-feature`, `/review`, etc. |
 | **ESLint + Ruff Configs** | Linter configs tuned for AI-generated code |
-| **Stack Templates** | CLAUDE.md templates for React, Django, Node |
+| **Stack Templates** | CLAUDE.md templates for React, Django, FastAPI, Node |
 
 ## Pre-commit Hooks
 
