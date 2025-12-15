@@ -328,6 +328,23 @@ After 5-10 features, the styleguide has paid for itself. Plus:
 4. Reference it in prompts: "Use /styleguide for styles"
 5. Keep it updated as you build
 
+Or use the `/styleguide` slash command to generate one interactively!
+
+## Resources
+
+### Component Libraries
+
+- **[21st.dev](https://21st.dev/)** - AI-friendly React components built with Tailwind. Great starting point for your styleguide.
+- **[shadcn/ui](https://ui.shadcn.com/)** - Copy-paste components for React
+- **[Tailwind UI](https://tailwindui.com/)** - Official Tailwind components
+- **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible primitives
+
+### Design Inspiration
+
+- **[Dribbble](https://dribbble.com/)** - UI design inspiration
+- **[Mobbin](https://mobbin.com/)** - Real app UI patterns
+- **[Refero](https://refero.design/)** - Web design references
+
 ---
 
 ## See Also
