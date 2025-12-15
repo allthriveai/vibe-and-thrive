@@ -85,9 +85,10 @@ git clone https://github.com/allthriveai/vibe-and-thrive.git
 |-----|-------------|
 | [HOOKS.md](docs/HOOKS.md) | All hooks and configuration options |
 | [SKILLS.md](docs/SKILLS.md) | Claude Code skills reference |
+| [TDD.md](docs/TDD.md) | Test-driven development with AI |
 | [BAD-PATTERNS.md](docs/BAD-PATTERNS.md) | Common AI mistakes and fixes |
 | [PROMPTING-GUIDE.md](docs/PROMPTING-GUIDE.md) | How to prompt AI effectively |
-| [WORKFLOW.md](docs/WORKFLOW.md) | TDD workflow for AI coding |
+| [CHEATSHEET.md](docs/CHEATSHEET.md) | Quick reference |
 | [CONTRIBUTING.md](docs/CONTRIBUTING.md) | How to add new hooks |
 
 ## Philosophy
