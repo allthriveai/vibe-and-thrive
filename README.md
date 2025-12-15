@@ -98,6 +98,7 @@ See [docs/HOOKS.md](docs/HOOKS.md) for all 16 hooks.
 |-----|-------------|
 | [PROMPTS.md](docs/PROMPTS.md) | Copy-paste prompt templates |
 | [PROMPTING-GUIDE.md](docs/PROMPTING-GUIDE.md) | How to prompt AI effectively |
+| [STYLEGUIDE.md](docs/STYLEGUIDE.md) | Why you need an HTML styleguide |
 | [HOOKS.md](docs/HOOKS.md) | All hooks and configuration options |
 | [SKILLS.md](docs/SKILLS.md) | Claude Code skills reference |
 | [TDD.md](docs/TDD.md) | Test-driven development with AI |
