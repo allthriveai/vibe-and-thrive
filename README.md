@@ -53,6 +53,7 @@ Runs automatically on every commit. See [Pre-commit Hooks](#pre-commit-hooks) be
 | Skill | Purpose |
 |-------|---------|
 | `/vibe-check` | Full code quality audit |
+| `/styleguide` | Generate a styleguide from your design preferences |
 | `/tdd-feature` | Build features test-first with AI |
 | `/e2e-scaffold` | Generate E2E test structure |
 | `/review` | Code review for issues |
