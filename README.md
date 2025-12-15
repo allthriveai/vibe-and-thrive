@@ -1,28 +1,20 @@
 # Vibe and Thrive
 
-**Pre-commit hooks that help you write better code with AI coding agents.**
+**Pre-commit hooks and Claude Code tools that help you write better code with AI coding agents.**
 
-When you're vibe coding with Claude, Cursor, Copilot, or other AI assistants, these hooks catch common patterns that lead to technical debt—before they hit your codebase.
+When you're vibe coding with Claude, Cursor, Copilot, or other AI assistants, these tools catch common patterns that lead to technical debt—before they hit your codebase.
 
-## Why This Exists
+## What's Included
 
-AI coding agents are incredibly productive, but they can introduce subtle issues:
-
-- **Duplicate code** - Agents often generate similar code blocks instead of extracting shared logic
-- **Magic numbers** - Raw numbers scattered throughout instead of named constants
-- **Hardcoded URLs** - `localhost:3000` instead of environment variables
-- **Architecture mismatches** - Building ARM images when your server runs x86
-- **snake_case in TypeScript** - Copying API response shapes without converting to camelCase
-- **Debug statements** - `console.log` and `print()` left in production code
-- **TODO/FIXME comments** - Placeholders that never got implemented
-- **Empty catch blocks** - Silently swallowing errors
-- **Hardcoded secrets** - API keys and passwords committed to the repo
-
-These hooks act as guardrails, catching these patterns at commit time so you can fix them while the context is fresh.
+| Tool | Purpose |
+|------|---------|
+| **10 Pre-commit Hooks** | Automatically check code at commit time |
+| **`/vibe-check` Command** | On-demand code audit in Claude Code |
+| **CLAUDE.md Template** | Teach AI agents your standards |
 
 ## Quick Start
 
-### 1. Install pre-commit
+### Step 1: Install pre-commit
 
 ```bash
 # macOS
@@ -32,250 +24,257 @@ brew install pre-commit
 pip install pre-commit
 ```
 
-### 2. Add to your project
+### Step 2: Add hooks to your project
 
-Create or update `.pre-commit-config.yaml` in your project root:
+Create `.pre-commit-config.yaml` in your project root:
 
 ```yaml
 repos:
   - repo: https://github.com/allthriveai/vibe-and-thrive
-    rev: v0.1.0  # Use the latest release
+    rev: v0.1.0
     hooks:
+      # Pick the hooks you want:
+      - id: check-secrets           # BLOCKS commits with API keys/passwords
+      - id: check-hardcoded-urls    # BLOCKS localhost URLs
+      - id: check-debug-statements  # Warns about console.log/print
+      - id: check-todo-fixme        # Warns about TODO/FIXME comments
+      - id: check-empty-catch       # Warns about empty catch blocks
+      - id: check-snake-case-ts     # Warns about snake_case in TypeScript
       - id: check-dry-violations-python
       - id: check-dry-violations-js
       - id: check-magic-numbers
-      - id: check-hardcoded-urls
       - id: check-docker-platform
-      - id: check-snake-case-ts
-      - id: check-debug-statements
-      - id: check-todo-fixme
-      - id: check-empty-catch
-      - id: check-secrets
 ```
 
-### 3. Install the hooks
+### Step 3: Install the hooks
 
 ```bash
 pre-commit install
 ```
 
-That's it! The hooks will run automatically on every commit.
+Done! Hooks run automatically on every commit.
+
+### Step 4 (Optional): Add Claude Code integration
+
+```bash
+# Clone or download vibe-and-thrive
+git clone https://github.com/allthriveai/vibe-and-thrive.git
+
+# Copy the Claude command to your project
+cp -r vibe-and-thrive/.claude your-project/
+
+# Copy and customize the CLAUDE.md template
+cp vibe-and-thrive/CLAUDE.md.template your-project/CLAUDE.md
+```
+
+Now you can run `/vibe-check` in Claude Code anytime.
+
+---
+
+## Updating
+
+### Update hooks to latest version
+
+```bash
+cd your-project
+pre-commit autoupdate --repo https://github.com/allthriveai/vibe-and-thrive
+pre-commit install
+```
+
+Or manually update `rev` in `.pre-commit-config.yaml`:
+
+```yaml
+repos:
+  - repo: https://github.com/allthriveai/vibe-and-thrive
+    rev: v0.2.0  # Update this to latest
+```
+
+### Update Claude commands
+
+Re-copy from the latest vibe-and-thrive:
+
+```bash
+git -C vibe-and-thrive pull
+cp -r vibe-and-thrive/.claude your-project/
+```
+
+---
 
 ## Available Hooks
 
-### `check-dry-violations-python`
+### Hooks That Block Commits
 
-Detects code duplication in Python files using AST analysis:
+| Hook | What it catches |
+|------|-----------------|
+| `check-secrets` | API keys, passwords, tokens, private keys |
+| `check-hardcoded-urls` | `localhost` and `127.0.0.1` URLs |
 
-- Duplicate code blocks (6+ consecutive similar lines)
-- Repeated string literals (5+ occurrences of strings 40+ chars)
-- Functions with identical bodies
+### Hooks That Warn Only
 
-```bash
-# Warning output
-DRY: 3 potential issue(s) in 2 file(s). Run with --verbose for details.
-```
+| Hook | What it catches |
+|------|-----------------|
+| `check-debug-statements` | `console.log`, `print()`, `debugger`, `breakpoint()` |
+| `check-todo-fixme` | `TODO`, `FIXME`, `XXX`, `HACK`, `BUG` comments |
+| `check-empty-catch` | Empty `catch` or `except: pass` blocks |
+| `check-snake-case-ts` | `snake_case` properties in TypeScript interfaces |
+| `check-dry-violations-python` | Duplicate code blocks, repeated strings, identical functions |
+| `check-dry-violations-js` | Same for JS/TS, plus repeated className patterns |
+| `check-magic-numbers` | Hardcoded numbers that should be constants |
+| `check-docker-platform` | Missing `--platform` in Docker builds (ARM/x86 issues) |
 
-### `check-dry-violations-js`
+### Suppressing Warnings
 
-Same analysis for JavaScript/TypeScript files:
-
-- Duplicate code blocks
-- Repeated string literals
-- Repeated className patterns (React/Tailwind)
-
-### `check-magic-numbers`
-
-Flags hardcoded numbers that should be constants:
-
-```python
-# Bad
-if retries > 5:
-    timeout = 30000
-
-# Good
-MAX_RETRIES = 5
-DEFAULT_TIMEOUT_MS = 30000
-```
-
-Allows common numbers: 0, 1, 2, -1, 100, 1000
-
-### `check-hardcoded-urls`
-
-Catches localhost/127.0.0.1 URLs that should use configuration:
+Add comments to suppress specific warnings:
 
 ```python
-# Bad
-API_URL = "http://localhost:8000/api"
-
-# Good
-API_URL = os.getenv("API_URL", "http://localhost:8000/api")
-```
-
-### `check-docker-platform`
-
-Prevents ARM/x86 architecture mismatches when building Docker images on Apple Silicon for x86 servers:
-
-- Checks `Dockerfile.prod` for `--platform` specification
-- Validates docker-compose files
-- Scans shell scripts for `docker build` commands
-
-### `check-snake-case-ts`
-
-Detects `snake_case` property names in TypeScript interfaces and types. This is critical when your API client transforms responses from `snake_case` to `camelCase`:
-
-```typescript
-// Bad - AI copied the API response shape directly
-interface User {
-  first_name: string;  // Will be undefined!
-  last_name: string;   // API transforms to firstName, lastName
-}
-
-// Good - matches the transformed response
-interface User {
-  firstName: string;
-  lastName: string;
-}
-```
-
-This hook catches a subtle but common bug: your axios/fetch interceptor transforms API responses to camelCase, but the TypeScript interface still uses snake_case, so `user.first_name` is always `undefined`.
-
-### `check-debug-statements`
-
-Warns about debug statements left in code:
-
-- `console.log()`, `console.debug()`, `console.info()` (JS/TS)
-- `print()` statements (Python)
-- `debugger` statements (JS/TS)
-- `breakpoint()`, `pdb.set_trace()` (Python)
-
-Ignores `console.error()`, `console.warn()`, and proper `logger.*` calls.
-
-Add `// noqa: debug` or `# noqa: debug` to suppress for intentional logging.
-
-### `check-todo-fixme`
-
-Warns about unfinished work markers:
-
-- `TODO`
-- `FIXME`
-- `XXX`
-- `HACK`
-- `BUG`
-
-AI agents love to write `// TODO: implement this` and move on. This reminds you to actually do it.
-
-### `check-empty-catch`
-
-Warns about empty catch blocks that silently swallow errors:
-
-```python
-# Bad - errors disappear silently
-try:
-    do_something()
-except Exception:
-    pass
-
-# Good - at least log it
-try:
-    do_something()
-except Exception as e:
-    logger.error(f"Failed: {e}")
-    raise
+print("Starting server...")  # noqa: debug
 ```
 
 ```javascript
-// Bad
-try { doSomething(); } catch (e) {}
-
-// Good
-try { doSomething(); } catch (e) { console.error(e); throw e; }
+console.log('Initializing...'); // noqa: debug
 ```
 
-### `check-secrets`
-
-**BLOCKS commits** containing hardcoded secrets:
-
-- AWS access keys (`AKIA...`)
-- OpenAI/Stripe keys (`sk-...`)
-- GitHub tokens (`ghp_...`)
-- Database connection strings with passwords
-- Private keys
-- Generic API keys and passwords
-
-```python
-# Bad - will block commit
-API_KEY = "sk-1234567890abcdef..."
-
-# Good - use environment variables
-API_KEY = os.getenv("API_KEY")
-```
-
-## Configuration
-
-### Excluding Files
-
-Each hook respects standard pre-commit exclude patterns:
-
-```yaml
-- id: check-dry-violations-python
-  exclude: |
-    (?x)^(
-      .*/tests/.*|
-      .*/migrations/.*
-    )$
-```
-
-### Verbose Output
-
-Run manually with verbose output:
-
-```bash
-pre-commit run check-dry-violations-python --all-files --verbose
-```
+---
 
 ## Claude Code Integration
 
 ### `/vibe-check` Command
 
-Copy the `.claude/commands/` folder to your project to get the `/vibe-check` slash command:
+Run `/vibe-check` in Claude Code to get a comprehensive report:
 
-```bash
-cp -r path/to/vibe-and-thrive/.claude your-project/
 ```
+## Vibe Check Report
 
-Then run `/vibe-check` in Claude Code to get a comprehensive report of all issues in your codebase.
+### High Priority
+- secrets.py:42 - Looks like an API key
+- api.ts:15 - localhost URL should use env var
+
+### Medium Priority
+- service.py:88 - except: pass (silently swallows errors)
+- types.ts:12 - `user_id` should be `userId`
+
+### Low Priority
+- utils.py:23 - print() statement
+- auth.py:67 - TODO: implement refresh token
+```
 
 ### CLAUDE.md Template
 
-Copy `CLAUDE.md.template` to your project root as `CLAUDE.md`:
+The template teaches AI agents your coding standards:
 
-```bash
-cp path/to/vibe-and-thrive/CLAUDE.md.template your-project/CLAUDE.md
+- Don't leave debug statements
+- Use environment variables for URLs
+- Use camelCase in TypeScript
+- Handle errors properly
+- Complete TODOs before committing
+- Never hardcode secrets
+
+Copy and customize for your project's specific patterns.
+
+---
+
+## Configuration
+
+### Excluding Files
+
+Each hook supports standard pre-commit exclude patterns:
+
+```yaml
+- id: check-debug-statements
+  exclude: |
+    (?x)^(
+      .*/tests/.*|
+      .*\.test\.(ts|js|py)$
+    )$
 ```
 
-This teaches Claude/Cursor your coding standards so it avoids these issues in the first place. The hooks catch what slips through.
+### Running Manually
 
-## Philosophy
+```bash
+# Run all hooks on all files
+pre-commit run --all-files
 
-These hooks are designed to be **warnings, not blockers** (mostly). They alert you to potential issues but generally allow commits to proceed. The goal is awareness, not gatekeeping.
+# Run specific hook
+pre-commit run check-secrets --all-files
 
-Hooks that block commits:
-- `check-hardcoded-urls` - These are almost always bugs in production
-- `check-secrets` - Security critical, never commit secrets
+# Run with verbose output
+pre-commit run check-dry-violations-python --all-files --verbose
+```
 
-Hooks that warn only:
-- `check-dry-violations-*` - Duplication is sometimes intentional
-- `check-magic-numbers` - Context matters
-- `check-docker-platform` - May be handled in CI/CD
-- `check-snake-case-ts` - Some APIs genuinely need snake_case
-- `check-debug-statements` - Sometimes you want logging
-- `check-todo-fixme` - TODOs in progress are fine
-- `check-empty-catch` - Sometimes intentional (rare)
+---
 
 ## Contributing
 
-Found a pattern that AI agents commonly introduce? Open an issue or PR!
+Found a pattern that AI agents commonly introduce? We'd love to add it!
+
+### Adding a New Hook
+
+1. **Fork the repo**
+
+2. **Create your hook** in `hooks/`:
+   ```python
+   #!/usr/bin/env python3
+   """Pre-commit hook to check for [your pattern]."""
+
+   import sys
+   from pathlib import Path
+
+   def check_file(filepath: Path) -> list[tuple[int, str]]:
+       # Return list of (line_number, description) tuples
+       ...
+
+   def main(filenames: list[str]) -> int:
+       # Return 0 for warnings, 1 to block commit
+       ...
+
+   if __name__ == '__main__':
+       sys.exit(main(sys.argv[1:]))
+   ```
+
+3. **Register it** in `.pre-commit-hooks.yaml`:
+   ```yaml
+   - id: check-your-pattern
+     name: Check Your Pattern
+     description: What it does
+     entry: hooks/check_your_pattern.py
+     language: python
+     types_or: [python, javascript, ts, tsx]
+   ```
+
+4. **Update the README** with documentation
+
+5. **Submit a PR**
+
+### Hook Guidelines
+
+- **Warn by default** - Return `0` to allow commits, `1` only for security issues
+- **Be specific** - Catch real problems, not style preferences
+- **Allow suppression** - Support `# noqa:` comments
+- **Skip tests** - Don't flag test files unless relevant
+- **Clear messages** - Tell users what's wrong and how to fix it
+
+### Ideas for New Hooks
+
+- `check-any-types` - TypeScript `any` usage
+- `check-function-length` - Functions over 50 lines
+- `check-deep-nesting` - 4+ levels of if/for/while
+- `check-unused-imports` - Imports that aren't used
+- `check-async-await` - Missing `await` on async calls
+
+---
+
+## Philosophy
+
+These hooks are **guardrails, not gatekeepers**. They:
+
+- Warn about most issues (awareness > blocking)
+- Block only security-critical problems (secrets, production URLs)
+- Support suppression for intentional patterns
+- Skip test files where patterns are often acceptable
+
+The goal is to catch AI-generated code issues while staying out of your way.
+
+---
 
 ## License
 
