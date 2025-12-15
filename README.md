@@ -1,8 +1,8 @@
 # Vibe and Thrive
 
-**Pre-commit hooks and Claude Code tools that help you write better code with AI coding agents.**
+**Tools and guardrails that catch common AI coding mistakes before they hit your codebase.**
 
-When you're vibe coding with Claude, Cursor, Copilot, or other AI assistants, these tools catch common patterns that lead to technical debt—before they hit your codebase.
+When you're vibe coding with Claude, Cursor, Copilot, or other AI assistants, these tools catch patterns that lead to technical debt—automatically.
 
 ## What's Included
 
