@@ -96,11 +96,12 @@ See [docs/HOOKS.md](docs/HOOKS.md) for all 16 hooks.
 
 | Doc | Description |
 |-----|-------------|
+| [PROMPTS.md](docs/PROMPTS.md) | Copy-paste prompt templates |
+| [PROMPTING-GUIDE.md](docs/PROMPTING-GUIDE.md) | How to prompt AI effectively |
 | [HOOKS.md](docs/HOOKS.md) | All hooks and configuration options |
 | [SKILLS.md](docs/SKILLS.md) | Claude Code skills reference |
 | [TDD.md](docs/TDD.md) | Test-driven development with AI |
 | [BAD-PATTERNS.md](docs/BAD-PATTERNS.md) | Common AI mistakes and fixes |
-| [PROMPTING-GUIDE.md](docs/PROMPTING-GUIDE.md) | How to prompt AI effectively |
 | [CHEATSHEET.md](docs/CHEATSHEET.md) | Quick reference |
 | [CONTRIBUTING.md](docs/CONTRIBUTING.md) | How to add new hooks |
 
