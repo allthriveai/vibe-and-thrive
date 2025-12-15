@@ -31,7 +31,26 @@ When you're vibe coding with Claude, Cursor, Copilot, or other AI assistants, th
 
 ## Quick Start
 
-### Option A: One-command setup (recommended)
+### Option A: Install as a package (recommended)
+
+```bash
+# Using uv (fast)
+uv pip install vibe-and-thrive
+
+# Or using pip
+pip install vibe-and-thrive
+```
+
+This gives you CLI commands to run checks directly:
+
+```bash
+vibe-check-secrets src/         # Check for hardcoded secrets
+vibe-check-urls src/            # Check for localhost URLs
+vibe-check-nesting src/         # Check for deep nesting
+vibe-check-length src/          # Check for long functions
+```
+
+### Option B: One-command setup (full toolkit)
 
 ```bash
 # Clone vibe-and-thrive
@@ -48,7 +67,7 @@ This will:
 - Install pre-commit hooks
 - Configure Chrome DevTools MCP server for E2E testing
 
-### Option B: Manual setup
+### Option C: Pre-commit hooks only
 
 #### Step 1: Install pre-commit
 
@@ -56,8 +75,8 @@ This will:
 # macOS
 brew install pre-commit
 
-# pip
-pip install pre-commit
+# Or with uv/pip
+uv pip install pre-commit
 ```
 
 #### Step 2: Add hooks to your project

@@ -119,5 +119,10 @@ def main(filenames: list[str]) -> int:
     return 0
 
 
+def cli() -> int:
+    """CLI entry point."""
+    return main(sys.argv[1:])
+
+
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(cli())
