@@ -19,6 +19,59 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Remove string literals from a line to avoid counting braces inside strings
+ */
+function removeStringsFromLine(line) {
+  let result = '';
+  let i = 0;
+  let inSingleQuote = false;
+  let inDoubleQuote = false;
+  let inTemplate = false;
+
+  while (i < line.length) {
+    const char = line[i];
+    const prevChar = i > 0 ? line[i - 1] : '';
+
+    // Handle escape sequences
+    if (prevChar === '\\') {
+      result += ' ';
+      i++;
+      continue;
+    }
+
+    // Toggle string state
+    if (char === "'" && !inDoubleQuote && !inTemplate) {
+      inSingleQuote = !inSingleQuote;
+      result += ' ';
+      i++;
+      continue;
+    }
+    if (char === '"' && !inSingleQuote && !inTemplate) {
+      inDoubleQuote = !inDoubleQuote;
+      result += ' ';
+      i++;
+      continue;
+    }
+    if (char === '`' && !inSingleQuote && !inDoubleQuote) {
+      inTemplate = !inTemplate;
+      result += ' ';
+      i++;
+      continue;
+    }
+
+    // Replace string content with spaces, keep braces outside strings
+    if (inSingleQuote || inDoubleQuote || inTemplate) {
+      result += ' ';
+    } else {
+      result += char;
+    }
+    i++;
+  }
+
+  return result;
+}
+
 // Configuration
 const SNAKE_CASE_PATTERN = /^[a-z]+(_[a-z0-9]+)+$/;
 
@@ -64,9 +117,11 @@ function extractTypeProperties(content, filepath) {
       typeStartLine = lineNum;
 
       // Check if it's a single-line type (type Foo = {...})
-      if (line.includes('{')) {
+      // Use cleaned line to ignore braces in strings
+      const cleanedTypeLine = removeStringsFromLine(line);
+      if (cleanedTypeLine.includes('{')) {
         insideTypeBlock = true;
-        braceDepth = (line.match(/{/g) || []).length - (line.match(/}/g) || []).length;
+        braceDepth = (cleanedTypeLine.match(/{/g) || []).length - (cleanedTypeLine.match(/}/g) || []).length;
       }
       continue;
     }
@@ -78,9 +133,10 @@ function extractTypeProperties(content, filepath) {
     }
 
     if (insideTypeBlock) {
-      // Update brace depth
-      braceDepth += (line.match(/{/g) || []).length;
-      braceDepth -= (line.match(/}/g) || []).length;
+      // Update brace depth (using cleaned line to ignore braces in strings)
+      const cleanedLine = removeStringsFromLine(line);
+      braceDepth += (cleanedLine.match(/{/g) || []).length;
+      braceDepth -= (cleanedLine.match(/}/g) || []).length;
 
       // Check for property definitions
       const propMatch = line.match(propertyPattern);

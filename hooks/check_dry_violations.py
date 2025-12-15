@@ -82,7 +82,7 @@ class DuplicationChecker(ast.NodeVisitor):
             self.generic_visit(node)
             return
 
-        body_hash = hashlib.md5(body_repr.encode()).hexdigest()[:8]  # noqa: S324
+        body_hash = hashlib.md5(body_repr.encode()).hexdigest()[:16]  # noqa: S324
         self.function_bodies[node.name] = (node.lineno, body_hash, body_repr)
         self.generic_visit(node)
 
@@ -98,7 +98,7 @@ class DuplicationChecker(ast.NodeVisitor):
             self.generic_visit(node)
             return
 
-        body_hash = hashlib.md5(body_repr.encode()).hexdigest()[:8]  # noqa: S324
+        body_hash = hashlib.md5(body_repr.encode()).hexdigest()[:16]  # noqa: S324
         self.function_bodies[node.name] = (node.lineno, body_hash, body_repr)
         self.generic_visit(node)
 
@@ -212,6 +212,7 @@ def check_consecutive_duplicates(lines: list[str]) -> list[tuple[int, int, list[
             i += 1
             continue
 
+        found_duplicate = False
         for j in range(i + MIN_DUPLICATE_LINES, len(normalized) - MIN_DUPLICATE_LINES + 1):
             if normalized[j : j + MIN_DUPLICATE_LINES] == block:
                 if all(len(line) > 10 for line in block if line):
@@ -222,9 +223,14 @@ def check_consecutive_duplicates(lines: list[str]) -> list[tuple[int, int, list[
                             [lines[i + k] for k in range(MIN_DUPLICATE_LINES)],
                         )
                     )
+                    found_duplicate = True
                     break
 
-        i += 1
+        # Skip past this block if we found a duplicate to avoid multiple reports
+        if found_duplicate:
+            i += MIN_DUPLICATE_LINES
+        else:
+            i += 1
 
     return findings
 

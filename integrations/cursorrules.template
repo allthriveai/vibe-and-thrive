@@ -1,0 +1,147 @@
+# Cursor Rules for Vibe Coding
+# Copy this file to your project root as `.cursorrules`
+
+You are an expert developer helping with this project. Follow these rules:
+
+## Code Quality
+
+### Never Use These Patterns
+- `any` type in TypeScript - create proper interfaces
+- Empty catch blocks - handle errors properly
+- `console.log` for error handling - use proper logging
+- Hardcoded URLs - use environment variables
+- Functions over 50 lines - break them up
+- Deep nesting (4+ levels) - refactor with early returns
+
+### Always Do This
+- Handle loading, error, and empty states
+- Use proper TypeScript types
+- Write descriptive variable names
+- Add error handling for async operations
+- Use environment variables for configuration
+
+## Response Format
+
+When writing code:
+1. Explain what you're doing briefly
+2. Write clean, typed code
+3. Include error handling
+4. Mention any edge cases to consider
+
+When I ask you to fix something:
+1. Explain what was wrong
+2. Show the fix
+3. Explain why it's better
+
+## TypeScript Rules
+
+```typescript
+// DON'T
+const data: any = await fetch('/api');
+function process(input: any): any { }
+
+// DO
+interface User { id: string; name: string; }
+const data: User = await fetchUser();
+function process(input: UserInput): ProcessedUser { }
+```
+
+## Error Handling
+
+```typescript
+// DON'T
+try { doThing(); } catch (e) { }
+
+// DO
+try {
+  await doThing();
+} catch (error) {
+  if (error instanceof NetworkError) {
+    logger.warn('Network error, retrying', { error });
+    return retry(doThing);
+  }
+  logger.error('Failed to do thing', { error });
+  throw error;
+}
+```
+
+## React Components
+
+```typescript
+// DON'T
+function UserProfile({ userId }) {
+  const [user, setUser] = useState();
+  // No loading/error handling
+  return <div>{user.name}</div>;
+}
+
+// DO
+function UserProfile({ userId }: { userId: string }) {
+  const { data: user, isLoading, error } = useUser(userId);
+
+  if (isLoading) return <Skeleton />;
+  if (error) return <ErrorMessage error={error} />;
+  if (!user) return <NotFound />;
+
+  return <div>{user.name}</div>;
+}
+```
+
+## Testing
+
+When I ask you to write tests:
+1. Use the SCENARIO/EXPECTED/FAILURE pattern
+2. Test behavior, not implementation
+3. Include happy path and error cases
+4. Keep tests independent
+
+```typescript
+test('user can submit form', async () => {
+  /**
+   * SCENARIO: User fills out valid form and submits
+   * EXPECTED: Success message shown, form cleared
+   * FAILURE: Error shown or form stuck
+   */
+});
+```
+
+## Security
+
+Never:
+- Put secrets in code
+- Use innerHTML with user content
+- Build SQL queries with string concatenation
+- Trust user input without validation
+
+Always:
+- Use parameterized queries
+- Sanitize HTML if you must render it
+- Validate input on both client and server
+- Use HTTPS for external requests
+
+## When Asked to Review Code
+
+Check for:
+1. Security vulnerabilities
+2. Missing error handling
+3. `any` types
+4. Code duplication
+5. Long functions
+6. Missing tests for critical paths
+
+## Project-Specific Notes
+
+<!-- Add your project-specific patterns here -->
+
+### Tech Stack
+- Frontend: [Your stack]
+- Backend: [Your stack]
+- Database: [Your database]
+
+### Patterns to Follow
+- [Pattern 1]
+- [Pattern 2]
+
+### Things to Avoid
+- [Anti-pattern 1]
+- [Anti-pattern 2]

@@ -18,6 +18,11 @@ import sys
 from pathlib import Path
 
 
+def _get_indentation(line: str) -> int:
+    """Get the indentation level (number of leading spaces/tabs)."""
+    return len(line) - len(line.lstrip())
+
+
 def check_python_file(filepath: Path) -> list[tuple[int, str]]:
     """Check Python file for empty except blocks."""
     findings = []
@@ -33,21 +38,31 @@ def check_python_file(filepath: Path) -> list[tuple[int, str]]:
 
             # Check for except clause
             if re.match(r'^except\s*.*:\s*$', stripped):
+                except_indent = _get_indentation(line)
+                body_indent = except_indent + 4  # Expected indentation of except body
+
                 # Look at next non-empty line
                 j = i + 1
                 while j < len(lines) and not lines[j].strip():
                     j += 1
 
                 if j < len(lines):
-                    next_line = lines[j].strip()
-                    # Check if it's just 'pass' or a comment + pass
-                    if next_line == 'pass':
-                        findings.append((i + 1, line.strip()))
-                    elif next_line.startswith('#') and j + 1 < len(lines):
-                        # Check line after comment
-                        after_comment = lines[j + 1].strip()
-                        if after_comment == 'pass':
+                    next_line = lines[j]
+                    next_stripped = next_line.strip()
+                    next_indent = _get_indentation(next_line)
+
+                    # Only flag if the pass is at the correct body indentation level
+                    if next_indent >= body_indent:
+                        # Check if it's just 'pass' or a comment + pass
+                        if next_stripped == 'pass':
                             findings.append((i + 1, line.strip()))
+                        elif next_stripped.startswith('#') and j + 1 < len(lines):
+                            # Check line after comment
+                            after_line = lines[j + 1]
+                            after_stripped = after_line.strip()
+                            after_indent = _get_indentation(after_line)
+                            if after_stripped == 'pass' and after_indent >= body_indent:
+                                findings.append((i + 1, line.strip()))
 
             i += 1
 

@@ -1,0 +1,127 @@
+{
+  // VS Code Settings for Better AI-Assisted Coding
+  // Copy relevant settings to your .vscode/settings.json
+
+  // ============================================
+  // TypeScript - Catch issues early
+  // ============================================
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.suggest.completeFunctionCalls": true,
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+
+  // Strict null checks in editor
+  "typescript.strict": true,
+
+  // ============================================
+  // Editor - Clean code formatting
+  // ============================================
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+
+  // Show problems in editor
+  "editor.rulers": [80, 100],
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 100,
+
+  // ============================================
+  // ESLint - Enforce code quality
+  // ============================================
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.codeActionsOnSave.mode": "all",
+
+  // ============================================
+  // Python - Type hints and formatting
+  // ============================================
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+
+  // ============================================
+  // Files - Keep workspace clean
+  // ============================================
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/*.pyc": true
+  },
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // ============================================
+  // Search - Focus on relevant files
+  // ============================================
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.git": true,
+    "**/coverage": true,
+    "**/*.min.js": true,
+    "**/package-lock.json": true,
+    "**/yarn.lock": true
+  },
+
+  // ============================================
+  // Git - Clean commits
+  // ============================================
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+
+  // ============================================
+  // Terminal - Easy testing
+  // ============================================
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.defaultProfile.linux": "bash",
+
+  // ============================================
+  // Extensions - Recommended for vibe coding
+  // ============================================
+  // Install these extensions:
+  // - ESLint (dbaeumer.vscode-eslint)
+  // - Prettier (esbenp.prettier-vscode)
+  // - TypeScript Error Translator (mattpocock.ts-error-translator)
+  // - Error Lens (usernamehw.errorlens) - Shows errors inline
+  // - GitLens (eamodio.gitlens) - Better git integration
+  // - Python (ms-python.python)
+  // - Black Formatter (ms-python.black-formatter)
+  // - Pylance (ms-python.vscode-pylance)
+
+  // ============================================
+  // AI Assistant Settings
+  // ============================================
+  // If using GitHub Copilot:
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": false,
+    "plaintext": false,
+    "markdown": false,
+    "env": false
+  },
+
+  // Show AI suggestions but don't auto-accept
+  "editor.inlineSuggest.enabled": true,
+  "editor.suggestSelection": "first"
+}

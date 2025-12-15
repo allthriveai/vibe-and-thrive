@@ -8,13 +8,48 @@ When you're vibe coding with Claude, Cursor, Copilot, or other AI assistants, th
 
 | Tool | Purpose |
 |------|---------|
-| **10 Pre-commit Hooks** | Automatically check code at commit time |
-| **`/vibe-check` Command** | On-demand code audit in Claude Code |
-| **CLAUDE.md Template** | Teach AI agents your standards |
+| **16 Pre-commit Hooks** | Automatically check code at commit time |
+| **9 Claude Code Skills** | On-demand code tools |
+| **Educational Docs** | Learn to avoid common AI mistakes |
+| **Stack Examples** | CLAUDE.md templates for React, Django, Node |
+| **Integrations** | Cursor rules, GitHub Actions, VS Code settings |
+
+### Claude Code Skills
+
+| Command | Purpose |
+|---------|---------|
+| `/vibe-check` | Full code quality audit |
+| `/tdd-feature` | TDD workflow (test first, then implement) |
+| `/e2e-scaffold` | Generate Playwright test structure |
+| `/explain` | Explain code line by line |
+| `/review` | Review code for issues |
+| `/refactor` | Guided refactoring with explanations |
+| `/add-tests` | Add tests to existing code |
+| `/fix-types` | Fix TypeScript without using `any` |
+| `/security-check` | Check for OWASP vulnerabilities |
 
 ## Quick Start
 
-### Step 1: Install pre-commit
+### Option A: One-command setup (recommended)
+
+```bash
+# Clone vibe-and-thrive
+git clone https://github.com/allthriveai/vibe-and-thrive.git
+
+# Run setup for your project
+./vibe-and-thrive/setup-vibe-and-thrive.sh ~/path/to/your-project
+```
+
+This will:
+- Copy 9 Claude Code skills
+- Create `CLAUDE.md` from template
+- Create `.pre-commit-config.yaml` with all 16 hooks
+- Install pre-commit hooks
+- Configure Chrome DevTools MCP server for E2E testing
+
+### Option B: Manual setup
+
+#### Step 1: Install pre-commit
 
 ```bash
 # macOS
@@ -24,14 +59,14 @@ brew install pre-commit
 pip install pre-commit
 ```
 
-### Step 2: Add hooks to your project
+#### Step 2: Add hooks to your project
 
 Create `.pre-commit-config.yaml` in your project root:
 
 ```yaml
 repos:
   - repo: https://github.com/allthriveai/vibe-and-thrive
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
       # Pick the hooks you want:
       - id: check-secrets           # BLOCKS commits with API keys/passwords
@@ -46,7 +81,7 @@ repos:
       - id: check-docker-platform
 ```
 
-### Step 3: Install the hooks
+#### Step 3: Install the hooks
 
 ```bash
 pre-commit install
@@ -54,20 +89,39 @@ pre-commit install
 
 Done! Hooks run automatically on every commit.
 
-### Step 4 (Optional): Add Claude Code integration
+#### Step 4 (Optional): Add Claude Code integration
 
 ```bash
-# Clone or download vibe-and-thrive
-git clone https://github.com/allthriveai/vibe-and-thrive.git
-
-# Copy the Claude command to your project
+# Copy the Claude commands to your project
 cp -r vibe-and-thrive/.claude your-project/
 
 # Copy and customize the CLAUDE.md template
 cp vibe-and-thrive/CLAUDE.md.template your-project/CLAUDE.md
 ```
 
-Now you can run `/vibe-check` in Claude Code anytime.
+Now you can run these commands in Claude Code:
+- `/vibe-check` - Code quality audit
+- `/tdd-feature` - Build a feature using TDD (write failing test first)
+- `/e2e-scaffold` - Generate Playwright E2E test structure
+
+### Setup Script Options
+
+```bash
+# Full setup for a project
+./setup-vibe-and-thrive.sh ~/Sites/my-project
+
+# Setup current directory
+./setup-vibe-and-thrive.sh .
+
+# Only configure MCP servers (no project changes)
+./setup-vibe-and-thrive.sh --mcp-only
+
+# Skip MCP configuration
+./setup-vibe-and-thrive.sh --no-mcp ~/Sites/my-project
+
+# Skip pre-commit hooks
+./setup-vibe-and-thrive.sh --no-hooks ~/Sites/my-project
+```
 
 ---
 
@@ -121,6 +175,12 @@ cp -r vibe-and-thrive/.claude your-project/
 | `check-dry-violations-js` | Same for JS/TS, plus repeated className patterns |
 | `check-magic-numbers` | Hardcoded numbers that should be constants |
 | `check-docker-platform` | Missing `--platform` in Docker builds (ARM/x86 issues) |
+| `check-any-types` | TypeScript `any` type usage |
+| `check-function-length` | Functions over 50 lines |
+| `check-commented-code` | Large blocks of commented-out code |
+| `check-deep-nesting` | 4+ levels of nested if/for/while |
+| `check-console-error` | `console.log` used for error handling |
+| `check-unsafe-html` | `innerHTML`/`dangerouslySetInnerHTML` without sanitization |
 
 ### Suppressing Warnings
 
@@ -170,6 +230,42 @@ The template teaches AI agents your coding standards:
 - Never hardcode secrets
 
 Copy and customize for your project's specific patterns.
+
+### TDD Commands
+
+#### `/tdd-feature`
+
+Implement features using Test-Driven Development:
+
+1. Describe your feature: "Users can reset their password via email"
+2. Claude generates a failing Playwright test
+3. You run the test, confirm it fails for the right reason
+4. Claude implements the feature
+5. You run the test again, it passes
+
+The skill adapts to your project's auth patterns, API setup, and existing test helpers.
+
+#### `/e2e-scaffold`
+
+Generate a complete E2E test file structure:
+
+```typescript
+test.describe('Feature Name', () => {
+  test('user can perform action', async ({ page }) => {
+    /**
+     * SCENARIO: As a user, when I do X, I should see Y
+     * EXPECTED: Success criteria
+     * FAILURE: What indicates failure
+     */
+  });
+});
+```
+
+Includes:
+- SCENARIO/EXPECTED/FAILURE documentation pattern
+- Screenshot capture on failure
+- API helper functions for test data setup
+- Flexible locators with fallbacks
 
 ---
 
@@ -255,11 +351,49 @@ Found a pattern that AI agents commonly introduce? We'd love to add it!
 
 ### Ideas for New Hooks
 
-- `check-any-types` - TypeScript `any` usage
-- `check-function-length` - Functions over 50 lines
-- `check-deep-nesting` - 4+ levels of if/for/while
+Have an idea? We'd love contributions:
+
 - `check-unused-imports` - Imports that aren't used
 - `check-async-await` - Missing `await` on async calls
+- `check-react-keys` - Missing keys in React lists
+- `check-sql-injection` - SQL string concatenation
+
+---
+
+## Documentation
+
+### Educational Guides (in `docs/`)
+
+| Doc | What You'll Learn |
+|-----|-------------------|
+| [BAD-PATTERNS.md](docs/BAD-PATTERNS.md) | Gallery of common AI coding mistakes with fixes |
+| [PROMPTING-GUIDE.md](docs/PROMPTING-GUIDE.md) | How to talk to AI to get better code |
+| [WORKFLOW.md](docs/WORKFLOW.md) | Step-by-step TDD workflow for AI coding |
+
+### Quick Reference
+
+See [CHEATSHEET.md](CHEATSHEET.md) for a one-page reference of:
+- All hooks and what they catch
+- All Claude commands
+- Common AI mistakes and fixes
+- Good prompting patterns
+
+### Stack-Specific Examples (in `examples/`)
+
+| Template | For Projects Using |
+|----------|-------------------|
+| [CLAUDE-react.md](examples/CLAUDE-react.md) | React, TypeScript, TailwindCSS |
+| [CLAUDE-django.md](examples/CLAUDE-django.md) | Django, DRF, PostgreSQL |
+| [CLAUDE-node.md](examples/CLAUDE-node.md) | Node.js, Express/Fastify, Prisma |
+| [CLAUDE-fullstack.md](examples/CLAUDE-fullstack.md) | React + Django full-stack |
+
+### Integrations (in `integrations/`)
+
+| File | Purpose |
+|------|---------|
+| [cursorrules.template](integrations/cursorrules.template) | Rules for Cursor AI |
+| [vibe-check.yml](integrations/vibe-check.yml) | GitHub Action for PRs |
+| [vscode-settings.json](integrations/vscode-settings.json) | Recommended VS Code settings |
 
 ---
 

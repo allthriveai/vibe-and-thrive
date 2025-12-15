@@ -1,0 +1,116 @@
+# GitHub Action: Vibe Check
+# Runs vibe-and-thrive pre-commit hooks on PRs
+#
+# Add this to your repo: .github/workflows/vibe-check.yml
+
+name: Vibe Check
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+jobs:
+  vibe-check:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files --show-diff-on-failure
+        continue-on-error: true
+        id: precommit
+
+      - name: Comment on PR (if issues found)
+        if: steps.precommit.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ⚠️ Vibe Check Found Issues
+
+            The pre-commit hooks found some issues in this PR. Please review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+
+            Common fixes:
+            - \`any\` types → Create proper TypeScript interfaces
+            - Empty catch blocks → Add proper error handling
+            - Hardcoded URLs → Use environment variables
+            - console.log → Remove or use proper logging
+
+            Run \`pre-commit run --all-files\` locally to see all issues.`
+            })
+
+      - name: Check for blocking issues
+        run: |
+          # Only fail on blocking hooks (secrets, hardcoded URLs)
+          pre-commit run check-secrets --all-files
+          pre-commit run check-hardcoded-urls --all-files
+
+  # Optional: TypeScript type checking
+  typecheck:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    if: hashFiles('**/tsconfig.json') != ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ${{ hashFiles('frontend/package.json') != '' && 'frontend' || '.' }}
+
+      - name: Run type check
+        run: npm run typecheck || npm run tsc -- --noEmit
+        working-directory: ${{ hashFiles('frontend/package.json') != '' && 'frontend' || '.' }}
+        continue-on-error: true
+
+  # Optional: Python type checking
+  mypy:
+    name: Python Type Check
+    runs-on: ubuntu-latest
+    if: hashFiles('**/pyproject.toml') != '' || hashFiles('**/setup.py') != ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install mypy
+          pip install -e . || pip install -r requirements.txt || true
+
+      - name: Run mypy
+        run: mypy . --ignore-missing-imports
+        continue-on-error: true

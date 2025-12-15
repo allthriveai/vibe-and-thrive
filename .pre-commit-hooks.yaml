@@ -121,3 +121,55 @@
       .*yarn\.lock$|
       .*pnpm-lock\.yaml$
     )$
+
+- id: check-any-types
+  name: Check TypeScript any Types
+  description: Warn about TypeScript 'any' type usage that defeats type safety
+  entry: hooks/check_any_types.js
+  language: node
+  types_or: [ts, tsx]
+  exclude: |
+    (?x)^(
+      .*\.d\.ts$|
+      .*/node_modules/.*
+    )$
+
+- id: check-function-length
+  name: Check Function Length
+  description: Warn about functions over 50 lines that should be broken up
+  entry: hooks/check_function_length.py
+  language: python
+  types_or: [python, javascript, jsx, ts, tsx]
+  exclude: |
+    (?x)^(
+      .*/tests/.*|
+      .*/migrations/.*
+    )$
+
+- id: check-commented-code
+  name: Check Commented Code
+  description: Warn about large blocks of commented-out code
+  entry: hooks/check_commented_code.py
+  language: python
+  types_or: [python, javascript, jsx, ts, tsx]
+
+- id: check-deep-nesting
+  name: Check Deep Nesting
+  description: Warn about deeply nested code (pyramid of doom)
+  entry: hooks/check_deep_nesting.py
+  language: python
+  types_or: [python, javascript, jsx, ts, tsx]
+
+- id: check-console-error
+  name: Check Console Error Handling
+  description: Warn about using console.log for error handling in catch blocks
+  entry: hooks/check_console_error.py
+  language: python
+  types_or: [python, javascript, jsx, ts, tsx]
+
+- id: check-unsafe-html
+  name: Check Unsafe HTML
+  description: Warn about innerHTML/dangerouslySetInnerHTML without sanitization
+  entry: hooks/check_unsafe_html.js
+  language: node
+  types_or: [javascript, jsx, ts, tsx, vue, html]

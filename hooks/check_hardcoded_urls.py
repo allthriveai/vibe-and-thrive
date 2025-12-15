@@ -11,28 +11,28 @@ import re
 import sys
 from pathlib import Path
 
-# Patterns to detect hardcoded URLs
+# Patterns to detect hardcoded URLs (pre-compiled for performance)
 URL_PATTERNS = [
-    r'http://localhost:\d+',
-    r'https://localhost:\d+',
-    r'http://127\.0\.0\.1:\d+',
-    r'https://127\.0\.0\.1:\d+',
-    r'getattr\(settings,\s*[\'"][A-Z_]+[\'"]\s*,\s*[\'"]https?://',  # getattr with URL default
+    re.compile(r'http://localhost:\d+'),
+    re.compile(r'https://localhost:\d+'),
+    re.compile(r'http://127\.0\.0\.1:\d+'),
+    re.compile(r'https://127\.0\.0\.1:\d+'),
 ]
 
-# Allowed patterns (exceptions)
+# Allowed patterns (exceptions, pre-compiled)
 ALLOWED_PATTERNS = [
-    r'#.*http',              # Comments
-    r'""".*http.*"""',       # Docstrings
-    r"'''.*http.*'''",       # Docstrings
-    r'//.*http',             # JS/TS single-line comments
-    r'/\*.*http.*\*/',       # JS/TS multi-line comments
-    r'import\.meta\.env\.\w+\s*\|\|\s*[\'"]http',  # Vite env var fallback
-    r'process\.env\.\w+\s*\|\|\s*[\'"]http',       # Node env var fallback
-    r'VITE_\w+.*http',       # Vite config with env vars
-    r'os\.getenv\(',         # Python env var usage
-    r'os\.environ\.',        # Python environ usage
-    r'\.env',                # .env file references
+    re.compile(r'#.*http'),              # Comments
+    re.compile(r'""".*http.*"""'),       # Docstrings
+    re.compile(r"'''.*http.*'''"),       # Docstrings
+    re.compile(r'//.*http'),             # JS/TS single-line comments
+    re.compile(r'/\*.*http.*\*/'),       # JS/TS multi-line comments
+    re.compile(r'import\.meta\.env\.\w+\s*\|\|\s*[\'"]http'),  # Vite env var fallback
+    re.compile(r'process\.env\.\w+\s*\|\|\s*[\'"]http'),       # Node env var fallback
+    re.compile(r'VITE_\w+.*http'),       # Vite config with env vars
+    re.compile(r'os\.getenv\('),         # Python env var usage
+    re.compile(r'os\.environ\.'),        # Python environ usage
+    re.compile(r'\.env'),                # .env file references
+    re.compile(r'getattr\(settings,'),   # Django settings with getattr (has env var lookup)
 ]
 
 
@@ -48,12 +48,12 @@ def check_file(filepath: Path) -> list[tuple[int, str]]:
         with open(filepath, encoding='utf-8') as f:
             for line_num, line in enumerate(f, 1):
                 # Skip if line matches allowed patterns
-                if any(re.search(pattern, line) for pattern in ALLOWED_PATTERNS):
+                if any(pattern.search(line) for pattern in ALLOWED_PATTERNS):
                     continue
 
                 # Check for URL patterns
                 for pattern in URL_PATTERNS:
-                    if re.search(pattern, line):
+                    if pattern.search(line):
                         violations.append((line_num, line.strip()))
                         break
 

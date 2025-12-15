@@ -1,0 +1,239 @@
+# Project Instructions for AI Coding Agents
+
+## Tech Stack
+- **Frontend**: React 18, TypeScript, Vite, TailwindCSS
+- **Backend**: Django 5, Django REST Framework
+- **Database**: PostgreSQL
+- **Cache/Queue**: Redis, Celery
+- **Testing**: pytest (backend), Vitest (frontend), Playwright (E2E)
+
+## Architecture Overview
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   React     │────▶│   Django    │────▶│  PostgreSQL │
+│   Frontend  │     │   REST API  │     │   Database  │
+└─────────────┘     └─────────────┘     └─────────────┘
+                          │
+                          ▼
+                    ┌─────────────┐
+                    │   Redis     │
+                    │   + Celery  │
+                    └─────────────┘
+```
+
+## Code Quality Standards
+
+### API Contract
+- Frontend and backend share type definitions
+- Use consistent naming (camelCase in TS, snake_case in Python)
+- API transforms snake_case responses to camelCase
+- Document API changes before implementing
+
+```typescript
+// Frontend: types/api.ts
+interface User {
+  id: number;
+  email: string;
+  firstName: string;  // Transformed from first_name
+  lastName: string;
+  createdAt: string;
+}
+```
+
+```python
+# Backend: serializers.py
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'first_name', 'last_name', 'created_at']
+```
+
+### Frontend Standards
+
+**Components**
+- Use functional components with TypeScript
+- Keep components under 100 lines
+- Extract logic to custom hooks
+- Handle loading/error/empty states
+
+**State Management**
+- React Query for server state
+- Zustand for UI state only
+- Don't duplicate server state
+
+**API Calls**
+```typescript
+// services/api.ts
+const api = {
+  users: {
+    getAll: () => fetch<User[]>('/api/users/'),
+    getById: (id: number) => fetch<User>(`/api/users/${id}/`),
+    create: (data: CreateUserInput) => post<User>('/api/users/', data),
+  },
+};
+```
+
+### Backend Standards
+
+**Views**
+- Use DRF ViewSets for CRUD
+- Apply proper permissions
+- Return appropriate status codes
+- Filter querysets by user ownership
+
+**Models**
+- Add explicit `related_name`
+- Include `__str__` method
+- Index frequently queried fields
+- Use model managers for complex queries
+
+**Queries**
+- Avoid N+1 with select_related/prefetch_related
+- Use pagination for list endpoints
+- Add database indexes
+
+### Shared Patterns
+
+**Authentication**
+- JWT tokens in httpOnly cookies
+- CSRF protection for state-changing requests
+- Refresh tokens for long sessions
+
+**Error Handling**
+```typescript
+// Frontend
+try {
+  await api.users.create(data);
+} catch (error) {
+  if (error instanceof ApiError) {
+    showToast(error.message);
+  } else {
+    showToast('Something went wrong');
+    logger.error(error);
+  }
+}
+```
+
+```python
+# Backend
+try:
+    user = create_user(data)
+except ValidationError as e:
+    raise DRFValidationError(e.messages)
+except IntegrityError:
+    raise DRFValidationError({'email': 'Email already exists'})
+```
+
+### Testing Strategy
+
+**Unit Tests**
+- Frontend: Test hooks, utilities, complex components
+- Backend: Test services, serializers, model methods
+
+**Integration Tests**
+- Backend: Test API endpoints with pytest
+- Frontend: Test API integration with MSW
+
+**E2E Tests (Playwright)**
+- Test critical user flows
+- Use TDD workflow (test first, then implement)
+- Include SCENARIO/EXPECTED/FAILURE documentation
+
+```typescript
+test('user can complete checkout', async ({ page }) => {
+  /**
+   * SCENARIO: Logged-in user adds item and completes checkout
+   * EXPECTED: Order confirmation shown, order in database
+   * FAILURE: Stuck at any step, error shown
+   */
+  await loginAsTestUser(page);
+  await page.goto('/products/1');
+  await page.click('[data-testid="add-to-cart"]');
+  await page.click('[data-testid="checkout"]');
+  await page.fill('[name="address"]', '123 Main St');
+  await page.click('[data-testid="place-order"]');
+
+  await expect(page.getByText('Order Confirmed')).toBeVisible();
+});
+```
+
+## File Structure
+
+```
+project/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── stores/
+│   │   └── types/
+│   └── e2e/              # Playwright tests
+├── backend/
+│   ├── config/           # Django settings
+│   ├── apps/
+│   │   ├── users/
+│   │   └── orders/
+│   └── tests/
+├── docker-compose.yml
+└── Makefile
+```
+
+## Environment Variables
+
+```bash
+# .env.example
+
+# Database
+DATABASE_URL=postgresql://user:pass@localhost:5432/dbname
+
+# Django
+SECRET_KEY=your-secret-key
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Frontend
+VITE_API_URL=http://localhost:8000/api
+
+# Redis
+REDIS_URL=redis://localhost:6379
+```
+
+## Pre-commit Hooks
+This project uses vibe-and-thrive hooks. Run `/vibe-check` before committing.
+
+## Common Commands
+
+```bash
+# Development
+make up              # Start all services (Docker)
+make frontend        # Run frontend dev server
+make logs            # View backend logs
+
+# Database
+make migrate         # Run migrations
+make makemigrations  # Create migrations
+
+# Testing
+make test            # Run all tests
+make test-backend    # Run backend tests
+make test-frontend   # Run frontend tests
+make test-e2e        # Run Playwright E2E tests
+
+# Code Quality
+make lint            # Run all linters
+make format          # Format all code
+make typecheck       # Check TypeScript types
+```
+
+## TDD Workflow
+
+1. **Describe** - Write clear requirements
+2. **Test** - Write failing E2E test with `/tdd-feature`
+3. **Fail** - Run test, confirm it fails correctly
+4. **Implement** - Build backend API, then frontend
+5. **Pass** - Run test, confirm it passes
+6. **Review** - Run `/review` on the code
+7. **Commit** - Pre-commit hooks catch remaining issues

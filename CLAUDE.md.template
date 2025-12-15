@@ -166,6 +166,85 @@ def create_user(email):
     # ...
 ```
 
+## Test-Driven Development (TDD)
+
+When building new features, follow the TDD workflow:
+
+### The TDD Cycle
+
+1. **RED** - Write a failing test that defines what success looks like
+2. **GREEN** - Write the minimum code to make the test pass
+3. **REFACTOR** - Clean up while keeping tests green
+
+### E2E Test Documentation Pattern
+
+Always document tests with SCENARIO/EXPECTED/FAILURE:
+
+```typescript
+test('user can submit feedback', async ({ page }) => {
+  /**
+   * SCENARIO: As a logged-in user, when I fill out the feedback form
+   *           and click submit, my feedback should be saved
+   * EXPECTED: Success message appears, form clears
+   * FAILURE: Error shown, form stuck, or no confirmation
+   */
+});
+```
+
+### Critical Assertion Pattern
+
+When assertions fail, capture debug info before the `expect`:
+
+```typescript
+const isSuccess = await page.locator('[data-testid="success"]').isVisible();
+if (!isSuccess) {
+  console.error('FAIL: Success message not visible');
+  await page.screenshot({ path: 'e2e-feedback-submit-debug.png' });
+}
+expect(isSuccess).toBeTruthy();
+```
+
+### Flexible Locators
+
+Handle UI variations with fallback selectors:
+
+```typescript
+const submitButton = page.getByRole('button', { name: /submit|save/i })
+  .or(page.locator('[data-testid="submit-btn"]'));
+```
+
+### API Helper Pattern
+
+For tests that need to set up data via API:
+
+```typescript
+async function createTestData(page: Page): Promise<{ id: number }> {
+  return await page.evaluate(async (apiBase) => {
+    const response = await fetch(`${apiBase}/api/v1/resource/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+    return response.json();
+  }, API_BASE_URL);
+}
+```
+
+### Running Tests
+
+```bash
+# Run all E2E tests
+npx playwright test
+
+# Run with UI for debugging
+npx playwright test --ui
+
+# Run specific test file
+npx playwright test feature.spec.ts --headed
+```
+
+Use `/tdd-feature` to implement features with this workflow, or `/e2e-scaffold` to generate test file structure.
+
 ## Pre-commit Hooks
 
 This project uses [vibe-and-thrive](https://github.com/allthriveai/vibe-and-thrive) pre-commit hooks that will catch:

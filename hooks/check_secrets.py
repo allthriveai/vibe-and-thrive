@@ -21,84 +21,84 @@ import re
 import sys
 from pathlib import Path
 
-# Patterns that indicate secrets (pattern, name, severity)
+# Patterns that indicate secrets (compiled pattern, name, severity)
 SECRET_PATTERNS = [
     # AWS
-    (r'AKIA[0-9A-Z]{16}', 'AWS Access Key ID', 'high'),
-    (r'aws_secret_access_key\s*=\s*["\'][^"\']+["\']', 'AWS Secret Key', 'high'),
+    (re.compile(r'AKIA[0-9A-Z]{16}'), 'AWS Access Key ID', 'high'),
+    (re.compile(r'aws_secret_access_key\s*=\s*["\'][^"\']+["\']', re.IGNORECASE), 'AWS Secret Key', 'high'),
 
     # API Keys (generic patterns)
-    (r'api[_-]?key\s*[=:]\s*["\'][a-zA-Z0-9_\-]{20,}["\']', 'API Key', 'high'),
-    (r'apikey\s*[=:]\s*["\'][a-zA-Z0-9_\-]{20,}["\']', 'API Key', 'high'),
+    (re.compile(r'api[_-]?key\s*[=:]\s*["\'][a-zA-Z0-9_\-]{20,}["\']', re.IGNORECASE), 'API Key', 'high'),
+    (re.compile(r'apikey\s*[=:]\s*["\'][a-zA-Z0-9_\-]{20,}["\']', re.IGNORECASE), 'API Key', 'high'),
 
     # Common service keys
-    (r'sk-[a-zA-Z0-9]{20,}', 'OpenAI/Stripe Secret Key', 'high'),
-    (r'pk_live_[a-zA-Z0-9]{20,}', 'Stripe Publishable Key (Live)', 'medium'),
-    (r'sk_live_[a-zA-Z0-9]{20,}', 'Stripe Secret Key (Live)', 'high'),
-    (r'ghp_[a-zA-Z0-9]{36}', 'GitHub Personal Access Token', 'high'),
-    (r'github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}', 'GitHub PAT (fine-grained)', 'high'),
-    (r'xox[baprs]-[a-zA-Z0-9\-]{10,}', 'Slack Token', 'high'),
-    (r'hooks\.slack\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[a-zA-Z0-9]+', 'Slack Webhook URL', 'high'),
+    (re.compile(r'sk-[a-zA-Z0-9]{20,}'), 'OpenAI/Stripe Secret Key', 'high'),
+    (re.compile(r'pk_live_[a-zA-Z0-9]{20,}'), 'Stripe Publishable Key (Live)', 'medium'),
+    (re.compile(r'sk_live_[a-zA-Z0-9]{20,}'), 'Stripe Secret Key (Live)', 'high'),
+    (re.compile(r'ghp_[a-zA-Z0-9]{36}'), 'GitHub Personal Access Token', 'high'),
+    (re.compile(r'github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}'), 'GitHub PAT (fine-grained)', 'high'),
+    (re.compile(r'xox[baprs]-[a-zA-Z0-9\-]{10,}'), 'Slack Token', 'high'),
+    (re.compile(r'hooks\.slack\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[a-zA-Z0-9]+'), 'Slack Webhook URL', 'high'),
 
     # Database connection strings with passwords
-    (r'postgres://[^:]+:[^@]+@', 'PostgreSQL connection string with password', 'high'),
-    (r'mysql://[^:]+:[^@]+@', 'MySQL connection string with password', 'high'),
-    (r'mongodb://[^:]+:[^@]+@', 'MongoDB connection string with password', 'high'),
-    (r'redis://:[^@]+@', 'Redis connection string with password', 'high'),
+    (re.compile(r'postgres://[^:]+:[^@]+@'), 'PostgreSQL connection string with password', 'high'),
+    (re.compile(r'mysql://[^:]+:[^@]+@'), 'MySQL connection string with password', 'high'),
+    (re.compile(r'mongodb://[^:]+:[^@]+@'), 'MongoDB connection string with password', 'high'),
+    (re.compile(r'redis://:[^@]+@'), 'Redis connection string with password', 'high'),
 
     # Private keys
-    (r'-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----', 'Private Key', 'high'),
-    (r'-----BEGIN PGP PRIVATE KEY BLOCK-----', 'PGP Private Key', 'high'),
+    (re.compile(r'-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----'), 'Private Key', 'high'),
+    (re.compile(r'-----BEGIN PGP PRIVATE KEY BLOCK-----'), 'PGP Private Key', 'high'),
 
     # JWT tokens (only if they look real - 3 parts, reasonable length)
-    (r'eyJ[a-zA-Z0-9_-]{20,}\.eyJ[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}', 'JWT Token', 'medium'),
+    (re.compile(r'eyJ[a-zA-Z0-9_-]{20,}\.eyJ[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}'), 'JWT Token', 'medium'),
 
     # Generic patterns
-    (r'password\s*[=:]\s*["\'][^"\']{8,}["\']', 'Hardcoded Password', 'high'),
-    (r'secret\s*[=:]\s*["\'][a-zA-Z0-9_\-]{16,}["\']', 'Hardcoded Secret', 'high'),
-    (r'token\s*[=:]\s*["\'][a-zA-Z0-9_\-]{20,}["\']', 'Hardcoded Token', 'medium'),
+    (re.compile(r'password\s*[=:]\s*["\'][^"\']{8,}["\']', re.IGNORECASE), 'Hardcoded Password', 'high'),
+    (re.compile(r'secret\s*[=:]\s*["\'][a-zA-Z0-9_\-]{16,}["\']', re.IGNORECASE), 'Hardcoded Secret', 'high'),
+    (re.compile(r'token\s*[=:]\s*["\'][a-zA-Z0-9_\-]{20,}["\']', re.IGNORECASE), 'Hardcoded Token', 'medium'),
 ]
 
-# Patterns that indicate false positives
+# Patterns that indicate false positives (pre-compiled)
 FALSE_POSITIVE_PATTERNS = [
-    r'\.env',                    # References to .env files
-    r'process\.env\.',           # Environment variable access
-    r'os\.environ',              # Python env access
-    r'os\.getenv',               # Python env access
-    r'import\.meta\.env',        # Vite env access
-    r'example',                  # Example values
-    r'placeholder',              # Placeholder values
-    r'your[_-]?api[_-]?key',     # Placeholder patterns
-    r'xxx+',                     # Placeholder patterns
-    r'test[_-]?key',             # Test values
-    r'dummy',                    # Dummy values
-    r'fake',                     # Fake values
-    r'\$\{',                     # Template variables
-    r'<[A-Z_]+>',                # Placeholder like <API_KEY>
+    re.compile(r'\.env', re.IGNORECASE),                    # References to .env files
+    re.compile(r'process\.env\.', re.IGNORECASE),           # Environment variable access
+    re.compile(r'os\.environ', re.IGNORECASE),              # Python env access
+    re.compile(r'os\.getenv', re.IGNORECASE),               # Python env access
+    re.compile(r'import\.meta\.env', re.IGNORECASE),        # Vite env access
+    re.compile(r'example', re.IGNORECASE),                  # Example values
+    re.compile(r'placeholder', re.IGNORECASE),              # Placeholder values
+    re.compile(r'your[_-]?api[_-]?key', re.IGNORECASE),     # Placeholder patterns
+    re.compile(r'xxx+', re.IGNORECASE),                     # Placeholder patterns
+    re.compile(r'test[_-]?key', re.IGNORECASE),             # Test values
+    re.compile(r'dummy', re.IGNORECASE),                    # Dummy values
+    re.compile(r'fake', re.IGNORECASE),                     # Fake values
+    re.compile(r'\$\{'),                                    # Template variables
+    re.compile(r'<[A-Z_]+>'),                               # Placeholder like <API_KEY>
 ]
 
-# File patterns to skip
+# File patterns to skip (pre-compiled)
 SKIP_FILE_PATTERNS = [
-    r'\.env\.example$',
-    r'\.env\.sample$',
-    r'\.env\.template$',
-    r'package-lock\.json$',
-    r'yarn\.lock$',
-    r'pnpm-lock\.yaml$',
-    r'poetry\.lock$',
-    r'Pipfile\.lock$',
+    re.compile(r'\.env\.example$'),
+    re.compile(r'\.env\.sample$'),
+    re.compile(r'\.env\.template$'),
+    re.compile(r'package-lock\.json$'),
+    re.compile(r'yarn\.lock$'),
+    re.compile(r'pnpm-lock\.yaml$'),
+    re.compile(r'poetry\.lock$'),
+    re.compile(r'Pipfile\.lock$'),
 ]
 
 
 def should_skip_file(filepath: Path) -> bool:
     """Check if file should be skipped."""
     filepath_str = str(filepath)
-    return any(re.search(pattern, filepath_str) for pattern in SKIP_FILE_PATTERNS)
+    return any(pattern.search(filepath_str) for pattern in SKIP_FILE_PATTERNS)
 
 
 def is_false_positive(line: str) -> bool:
     """Check if the line is likely a false positive."""
-    return any(re.search(pattern, line, re.IGNORECASE) for pattern in FALSE_POSITIVE_PATTERNS)
+    return any(pattern.search(line) for pattern in FALSE_POSITIVE_PATTERNS)
 
 
 def check_file(filepath: Path) -> list[tuple[int, str, str, str]]:
@@ -125,10 +125,12 @@ def check_file(filepath: Path) -> list[tuple[int, str, str, str]]:
                     continue
 
                 for pattern, name, severity in SECRET_PATTERNS:
-                    if re.search(pattern, line, re.IGNORECASE):
+                    match = pattern.search(line)
+                    if match:
                         # Redact the actual secret in preview
-                        preview = line.strip()[:60]
-                        if len(line.strip()) > 60:
+                        redacted_line = pattern.sub('[REDACTED]', line)
+                        preview = redacted_line.strip()[:60]
+                        if len(redacted_line.strip()) > 60:
                             preview += '...'
                         findings.append((line_num, name, severity, preview))
                         break
