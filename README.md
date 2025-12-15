@@ -14,7 +14,19 @@ uv pip install vibe-and-thrive
 pip install vibe-and-thrive
 ```
 
-Then run checks directly:
+## Usage
+
+### Claude Code (recommended)
+
+Run `/vibe-check` in Claude Code for a full code quality audit:
+
+```
+/vibe-check
+```
+
+This scans your codebase for secrets, debug statements, empty catches, deep nesting, long functions, and more.
+
+### CLI
 
 ```bash
 vibe-check-secrets src/         # Hardcoded secrets
@@ -22,6 +34,10 @@ vibe-check-urls src/            # Localhost URLs
 vibe-check-nesting src/         # Deep nesting
 vibe-check-length src/          # Long functions
 ```
+
+### Pre-commit (automatic)
+
+Runs automatically on every commit. See [Pre-commit Hooks](#pre-commit-hooks) below.
 
 ## What's Included
 
