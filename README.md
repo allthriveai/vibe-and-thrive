@@ -12,6 +12,7 @@ AI coding agents are incredibly productive, but they can introduce subtle issues
 - **Magic numbers** - Raw numbers scattered throughout instead of named constants
 - **Hardcoded URLs** - `localhost:3000` instead of environment variables
 - **Architecture mismatches** - Building ARM images when your server runs x86
+- **snake_case in TypeScript** - Copying API response shapes without converting to camelCase
 
 These hooks act as guardrails, catching these patterns at commit time so you can fix them while the context is fresh.
 
@@ -41,6 +42,7 @@ repos:
       - id: check-magic-numbers
       - id: check-hardcoded-urls
       - id: check-docker-platform
+      - id: check-snake-case-ts
 ```
 
 ### 3. Install the hooks
@@ -110,6 +112,26 @@ Prevents ARM/x86 architecture mismatches when building Docker images on Apple Si
 - Validates docker-compose files
 - Scans shell scripts for `docker build` commands
 
+### `check-snake-case-ts`
+
+Detects `snake_case` property names in TypeScript interfaces and types. This is critical when your API client transforms responses from `snake_case` to `camelCase`:
+
+```typescript
+// Bad - AI copied the API response shape directly
+interface User {
+  first_name: string;  // Will be undefined!
+  last_name: string;   // API transforms to firstName, lastName
+}
+
+// Good - matches the transformed response
+interface User {
+  firstName: string;
+  lastName: string;
+}
+```
+
+This hook catches a subtle but common bug: your axios/fetch interceptor transforms API responses to camelCase, but the TypeScript interface still uses snake_case, so `user.first_name` is always `undefined`.
+
 ## Configuration
 
 ### Excluding Files
@@ -144,6 +166,7 @@ Hooks that warn only:
 - `check-dry-violations-*` - Duplication is sometimes intentional
 - `check-magic-numbers` - Context matters
 - `check-docker-platform` - May be handled in CI/CD
+- `check-snake-case-ts` - Some APIs genuinely need snake_case
 
 ## Contributing
 

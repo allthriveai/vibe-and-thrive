@@ -64,3 +64,18 @@
   entry: hooks/check_docker_platform.py
   language: python
   files: (Dockerfile\.prod|docker-compose.*\.ya?ml|\.sh)$
+
+- id: check-snake-case-ts
+  name: Check snake_case in TypeScript
+  description: Detect snake_case property names in TypeScript interfaces/types that should be camelCase
+  entry: hooks/check_snake_case_ts.js
+  language: node
+  types_or: [ts, tsx]
+  exclude: |
+    (?x)^(
+      .*/tests/.*|
+      .*\.test\.(ts|tsx)$|
+      .*\.spec\.(ts|tsx)$|
+      .*\.d\.ts$|
+      .*/node_modules/.*
+    )$
